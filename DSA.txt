@@ -1,0 +1,865 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DSA
+{
+    class DPProblems
+    {
+        static int[,] t = new int[1001, 1001];
+
+
+        static void Main(string[] args)
+        {
+            //Array.Clear(t, 0, t.Length);
+            //int[] wt = { 10, 20, 30 };
+            //int[] val = { 60, 100, 120 };
+            //int W = 50;
+            //int n = wt.Length;
+            //for (int i = 0; i < 1001; i++)
+            //{
+            //    for (int j = 0; j < 1001; j++)
+            //    {
+            //        t[i, j] = -1;
+            //    }
+            //}
+
+            //int maxProfit = TopDownKnapsack(wt, val, W, n);
+            //int[] arr = { 1,1,2,3 };
+            //int diff = 1;
+            //int count = SubsetSumWithDiff(arr,diff);
+
+
+            // Unbounded Knapsach
+            //int N = 5;
+            //int[] wt = new int[N - 1];
+            //int[] val = { 2, 5, 7, 8 };
+            //for (int i = 0; i < N - 1; i++)
+            //{
+            //    wt[i] = i + 1;
+            //}
+
+            //int n = wt.Length;
+            //int maxProfit = RodCutting(wt, val, N, n);
+
+            // LCS
+            //string x = "axxxy";
+            //string y = "axxxy";
+            //int m = x.Length;
+            //int n = y.Length;
+            //int result = LRCS(x, y, n, m);
+
+            //"AGXGTXAYB" OR "AGGXTXAYB"
+            //string count = PrintSupperSubsequence(x, y, m, n);
+            //int[] arr = { 40, 20, 30, 10, 30 };
+
+            //int min = SolveMCM(arr, 1, arr.Length-1);
+            //string s = "nitik";
+            //int min = PalindromPartMemoOpt(s, 0, s.Length-1);
+            //int[] coins = { 1, 2, 5 };
+            //int amount = 11;
+            //int length = coins.Length;
+            //int min = MinCoin(coins, amount, length);
+
+            int[] weight = { 3,34,4,12,5,2 };
+            int[] Value = { 60, 100, 120 };
+            int W = 30;
+            int[] result = SubsetSum(weight,  W, weight.Length);
+            Console.WriteLine("Hello ", result);
+
+        }
+
+        public static int Knapsack(int[] wt, int[] val, int W, int n)
+        {
+            // base condition
+            if (n == 0 || W == 0)
+            {
+                // because will not get any profit
+                return 0;
+            }
+            // choice digram condition
+            if (W >= wt[n - 1])
+            {
+                return Math.Max(val[n - 1] + Knapsack(wt, val, W - wt[n - 1], n - 1),
+                                  Knapsack(wt, val, W, n - 1));
+            }
+            else
+            {
+                return Knapsack(wt, val, W, n - 1);
+            }
+            //if (W < wt[n - 1])
+            //else
+            //{
+            //    return 0;
+            //}
+        }
+
+        public static int MemoKnapsack(int[] wt, int[] val, int W, int n)
+        {
+            // Base condition
+            if (n == 0 || W == 0)
+            {
+                return 0;
+            }
+            // Memoization condition
+            if (t[n, W] != -1)
+            {
+                return t[n, W];
+            }
+            // Recursive Condition
+            if (W >= wt[n - 1])
+            {
+                return t[n, W] = Math.Max(val[n - 1] + MemoKnapsack(wt, val, W - wt[n - 1], n - 1),
+                                            MemoKnapsack(wt, val, W, n - 1));
+            }
+            else
+            {
+                return t[n, W] = MemoKnapsack(wt, val, W, n - 1);
+            }
+        }
+
+        public static int TopDownKnapsack(int[] wt, int[] val, int W, int n)
+        {
+            var t = new int[n + 1, W + 1];
+            // Initilization of first row and first column
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < W + 1; j++)
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                }
+            }
+            // Code
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < W + 1; j++)
+                {
+                    if (j >= wt[i - 1])
+                    {
+                        t[i, j] = Math.Max(val[i - 1] + t[i - 1, j - wt[i - 1]], t[i - 1, j]);
+                    }
+                    else
+                        t[i, j] = t[i - 1, j];
+                }
+            }
+            return t[n, W];
+        }
+
+        public static bool IsSubsetSum(int[] arr, int sum, int n)
+        {
+            // Base condition
+            if (sum == 0)
+            {
+                return true;
+            }
+            if (n == 0)
+            {
+                return false;
+            }
+            // Recursive condition
+            if (sum >= arr[n - 1])
+            {
+                return IsSubsetSum(arr, sum - arr[n - 1], n - 1)
+                    || IsSubsetSum(arr, sum, n - 1);
+            }
+            else
+                return IsSubsetSum(arr, sum, n - 1);
+        }
+        public static bool IsMemoSubsetSum(int[] arr, int sum, int n)
+        {
+            // base condition
+            if (n == 0)
+            {
+                return false;
+            }
+            if (sum == 0)
+            {
+                return true;
+            }
+            // memo check
+            if (t[n, sum] != -1)
+            {
+                return t[n, sum] == 1 ? true : false;
+            }
+            // recursive condition
+            if (sum >= arr[n - 1])
+            {
+                if (IsMemoSubsetSum(arr, sum - arr[n - 1], n - 1) || IsMemoSubsetSum(arr, sum, n - 1))
+                {
+                    t[n, sum] = 1;
+                }
+                else
+                {
+                    t[n, sum] = 0;
+                }
+                return IsMemoSubsetSum(arr, sum - arr[n - 1], n - 1) || IsMemoSubsetSum(arr, sum, n - 1);
+            }
+            else
+            {
+                t[n, sum] = IsMemoSubsetSum(arr, sum, n - 1) ? 1 : 0;
+                return IsMemoSubsetSum(arr, sum, n - 1);
+            }
+        }
+        public static bool IsTDSubsetSum(int[] arr, int sum, int n)
+        {
+            bool[,] t = new bool[n + 1, sum + 1];
+            // initialization
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < sum + 1; j++)
+                {
+                    if (i == 0)
+                    {
+                        t[i, j] = false;
+                    }
+                    if (j == 0)
+                    {
+                        t[i, j] = true;
+                    }
+                }
+            }
+            // Code
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < sum + 1; j++)
+                {
+                    if (j >= arr[i - 1])
+                    {
+                        t[i, j] = t[i - 1, j - arr[i - 1]] || t[i - 1, j];
+                    }
+                    else
+                    {
+                        t[i, j] = t[i - 1, j];
+                    }
+                }
+            }
+            return t[n, sum];
+        }
+
+        public static bool IsEqulaSumPartition(int[] arr)
+        {
+            int sum = 0;
+            for (int i = 0; i < arr.Length; i++)
+            {
+                sum += arr[i];
+            }
+            if (sum % 2 != 0)
+            {
+                return false;
+            }
+            else
+            {
+                return IsTDSubsetSum(arr, sum / 2, arr.Length);
+            }
+        }
+
+        public static int SubsetCount(int[] arr, int sum, int n)
+        {
+            // Base condition
+            if (sum == 0)
+            {
+                return 1;
+            }
+            if (n == 0)
+            {
+                return 0;
+            }
+
+            // recursive codition
+            if (sum >= arr[n - 1])
+            {
+                return SubsetCount(arr, sum - arr[n - 1], n - 1) +
+                    SubsetCount(arr, sum, n - 1);
+            }
+            else
+            {
+                return SubsetCount(arr, sum, n - 1);
+            }
+        }
+
+        public static int MinSubsetSumDiff(int[] arr)
+        {
+            int n = arr.Length;
+            int range = 0;
+            for (int i = 0; i < n; i++)
+            {
+                range += arr[i];
+            }
+            int[] rangeArray = SubsetSum(arr, range, n);
+            int min = int.MaxValue;
+            for (int i = 0; i < rangeArray.Length; i++)
+            {
+                min = Math.Min(range - 2 * rangeArray[i], min);
+            }
+            return min;
+        }
+
+        private static int[] SubsetSum(int[] arr, int sum, int n)
+        {
+            bool[,] t = new bool[n + 1, sum + 1];
+            // initialization
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < sum + 1; j++)
+                {
+                    if (i == 0)
+                    {
+                        t[i, j] = false;
+                    }
+                    if (j == 0)
+                    {
+                        t[i, j] = true;
+                    }
+                }
+            }
+            // real code
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < sum + 1; j++)
+                {
+                    if (j >= arr[i - 1])
+                    {
+                        t[i, j] = t[i - 1, j - arr[i - 1]] || t[i - 1, j];
+                    }
+                    else
+                    {
+                        t[i, j] = t[i - 1, j];
+                    }
+                }
+            }
+
+            bool result = t[n, sum];
+            Console.WriteLine("Hello", result);
+            // for returning rangeArray
+            int[] rangeArray = new int[(sum / 2) + 1];
+            for (int i = 0; i < rangeArray.Length; i++)
+            {
+                if (t[n, i])
+                {
+                    rangeArray[i] = i;
+                }
+
+            }
+            return rangeArray;
+        }
+
+        public static int SubsetSumWithDiff(int[] arr, int diff)
+        {
+            int n = arr.Length;
+            int sumOfArr = 0;
+            for (int i = 0; i < n; i++)
+            {
+                sumOfArr += arr[i];
+            }
+            int sum = (diff + sumOfArr) / 2;
+            int sumOfDiffCount = CountSumbsetSumDiff(arr, sum, n);
+            return sumOfDiffCount;
+        }
+
+        private static int CountSumbsetSumDiff(int[] arr, int sum, int n)
+        {
+            int[,] t = new int[n + 1, sum + 1];
+            // initialization
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < sum + 1; j++)
+                {
+                    if (j == 0)
+                    {
+                        t[i, j] = 1;
+                    }
+                }
+            }
+            // Real code comes here
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < sum + 1; j++)
+                {
+                    if (j >= arr[i - 1])
+                    {
+                        t[i, j] = t[i - 1, j - arr[i - 1]] + t[i - 1, j];
+                    }
+                    else
+                    {
+                        t[i, j] = t[i - 1, j];
+                    }
+                }
+            }
+            return t[n, sum];
+        }
+
+        public static int RodCutting(int[] wt, int[] val, int N, int n)
+        {
+            // base condition
+            if (n == 0 || N == 0)
+            {
+                return 0;
+            }
+            // recursive condition
+            if (N >= wt[n - 1])
+            {
+                return Math.Max(val[n - 1] + RodCutting(wt, val, N - wt[n - 1], n), RodCutting(wt, val, N, n - 1));
+            }
+            else
+            {
+                return RodCutting(wt, val, N, n - 1);
+            }
+
+        }
+
+        public static int LCS(string x, string y, int n, int m)
+        {
+            // base case
+            if (n == 0 || m == 0)
+            {
+                return 0;
+            }
+            // recusive case
+            if (x[n - 1] == y[m - 1])
+            {
+                return 1 + LCS(x, y, n - 1, m - 1);
+            }
+            else
+            {
+                return Math.Max(LCS(x, y, n - 1, m), LCS(x, y, n, m - 1));
+            }
+        }
+
+        public static int MemoLCS(string x, string y, int n, int m)
+        {
+            // base case
+            if (n == 0 || m == 0)
+            {
+                return 0;
+            }
+            // checking value is memo or not
+            if (t[n, m] != -1)
+            {
+                return t[n, m];
+            }
+            // recursive condition
+            if (x[n - 1] == y[m - 1])
+            {
+                return t[n, m] = 1 + MemoLCS(x, y, n - 1, m - 1);
+            }
+            else
+            {
+                return t[n, m] = Math.Max(MemoLCS(x, y, n - 1, m),
+                                MemoLCS(x, y, n, m - 1));
+            }
+        }
+
+        public static int TopDownLCS(string x, string y, int n, int m)
+        {
+            int[,] t = new int[n + 1, m + 1];
+            // initialization
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < m + 1; j++)
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                }
+            }
+            // code
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < m + 1; j++)
+                {
+                    if (x[i - 1] == y[j - 1])
+                    {
+                        t[i, j] = 1 + t[i - 1, j - 1];
+                    }
+                    else
+                    {
+                        t[i, j] = Math.Max(t[i, j - 1], t[i - 1, j]);
+                    }
+                }
+            }
+            return t[n, m];
+        }
+
+        public static string PrintLCS(string x, string y, int n, int m)
+        {
+            int[,] t = new int[n + 1, m + 1];
+            // initialization
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < m + 1; j++)
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                }
+            }
+            // code
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < m + 1; j++)
+                {
+                    if (x[i - 1] == y[j - 1])
+                    {
+                        t[i, j] = 1 + t[i - 1, j - 1];
+                    }
+                    else
+                    {
+                        t[i, j] = Math.Max(t[i, j - 1], t[i - 1, j]);
+                    }
+                }
+            }
+
+            string subSeq = "";
+            while (n > 0 && m > 0)
+            {
+                if (x[n - 1] == y[m - 1])
+                {
+                    subSeq += x[n - 1];
+                    n--;
+                    m--;
+                }
+                else
+                {
+                    if (t[n, m - 1] > t[n - 1, m])
+                    {
+                        m--;
+                    }
+                    else
+                    {
+                        n--;
+                    }
+                }
+            }
+
+            return Revers(subSeq);
+        }
+        private static string Revers(string str)
+        {
+            char[] ch = str.ToCharArray();
+            int p1 = 0;
+            int p2 = str.Length - 1;
+            while (p1 < p2)
+            {
+                char temp = ch[p1];
+                ch[p1] = ch[p2];
+                ch[p2] = temp;
+                p1++;
+                p2--;
+            }
+            return new string(ch);
+        }
+        public static int SupperSubsequence(string x, string y, int m, int n)
+        {
+            int[,] t = new int[m + 1, n + 1];
+            // init
+            for (int i = 0; i < m + 1; i++)
+            {
+                for (int j = 0; j < n + 1; j++)
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                }
+            }
+            // code
+            for (int i = 1; i < m + 1; i++)
+            {
+                for (int j = 1; j < n + 1; j++)
+                {
+                    if (x[i - 1] == y[j - 1])
+                    {
+                        t[i, j] = 1 + t[i - 1, j - 1];
+                    }
+                    else
+                    {
+                        t[i, j] = Math.Max(t[i, j - 1], t[i - 1, j]);
+                    }
+                }
+            }
+            return m + n - t[m, n];
+        }
+        public static string PrintSupperSubsequence(string x, string y, int m, int n)
+        {
+            int[,] t = new int[m + 1, n + 1];
+            // initialization
+            for (int i = 0; i < m + 1; i++)
+            {
+                for (int j = 0; j < n + 1; j++)
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                }
+            }
+            // code
+            for (int i = 1; i < m + 1; i++)
+            {
+                for (int j = 1; j < n + 1; j++)
+                {
+                    if (x[i - 1] == y[j - 1])
+                    {
+                        t[i, j] = 1 + t[i - 1, j - 1];
+                    }
+                    else
+                    {
+                        t[i, j] = Math.Max(t[i - 1, j], t[i, j - 1]);
+                    }
+                }
+            }
+            // backtracking
+            int k = m;
+            int l = n;
+            string str = "";
+            while (k > 0 && l > 0)
+            {
+                if (x[k - 1] == y[l - 1])
+                {
+                    str += x[k - 1];
+                    k--;
+                    l--;
+                }
+                else
+                {
+                    if (t[k, l - 1] > t[k - 1, l])
+                    {
+                        str += y[l - 1];
+                        l--;
+                    }
+                    else
+                    {
+                        str += x[k - 1];
+                        k--;
+                    }
+                }
+            }
+
+            while (k > 0)
+            {
+                str += x[k - 1];
+                k--;
+            }
+            while (l > 0)
+            {
+                str += y[l - 1];
+                l--;
+            }
+            return str;
+        }
+
+        public static int SolveMCM(int[] arr, int i, int j)
+        {
+            int min = int.MaxValue;
+            // Base condition
+            if (i >= j)
+            {
+                return 0;
+            }
+            // Code
+            for (int k = i; k < j; k++)
+            {
+                int tempAns = SolveMCM(arr, i, k) +
+                              SolveMCM(arr, k + 1, j) +
+                              (arr[i - 1] * arr[k] * arr[j]);
+                if (tempAns < min)
+                {
+                    min = tempAns;
+                }
+            }
+            return min;
+        }
+
+        public static int SolvePalindromicPart(string s, int i, int j)
+        {
+            // base condition
+            if (i >= j)
+            {
+                return 0;
+            }
+
+            if (isPalindrom(s, i, j))
+            {
+                return 0;
+            }
+
+            int ans = Int16.MaxValue;
+
+            for (int k = i; k < j; k++)
+            {
+                int tempAns = SolvePalindromicPart(s, i, k)
+                              + SolvePalindromicPart(s, k + 1, j)
+                              + 1;
+
+                ans = Math.Min(ans, tempAns);
+            }
+            return ans;
+        }
+
+        private static bool isPalindrom(string s, int i, int j)
+        {
+            if (i == j) { return true; }
+            if (i > j) { return true; }
+            while (i < j)
+            {
+                if (s[i] != s[j])
+                {
+                    return false;
+                }
+                i++;
+                j--;
+            }
+            return true;
+        }
+
+        public static int PalindromPartMemo(string s, int i, int j)
+        {
+            int ans = int.MaxValue;
+            // base condition
+            if (i >= j) { return 0; }
+            if (isPalindrom(s, i, j)) { return 0; }
+            if (t[i, j] != -1) { return t[i, j]; }
+            for (int k = i; k < j; k++)
+            {
+                int tempAns = PalindromPartMemo(s, i, j)
+                              + PalindromPartMemo(s, i, j)
+                              + 1;
+                ans = Math.Min(tempAns, ans);
+            }
+            return t[i, j] = ans;
+        }
+
+        public static int PalindromPartMemoOpt(string s, int i, int j)
+        {
+            int ans = int.MaxValue;
+            // base condition
+            if (i >= j) { return 0; } // if string is empty or with single element
+            if (isPalindrom(s, i, j)) { return 0; }
+            if (t[i, j] != -1) { return t[i, j]; }
+            for (int k = i; k <= j - 1; k++)
+            {
+                int left = 0;
+                int right = 0;
+                if (t[i, k] != -1)
+                {
+                    left = t[i, k];
+                }
+                else
+                {
+                    left = PalindromPartMemoOpt(s, i, k);
+                    t[i, k] = left;
+                }
+                if (t[k + 1, j] != -1)
+                {
+                    right = t[k + 1, j];
+                }
+                else
+                {
+                    right = PalindromPartMemoOpt(s, k + 1, j);
+                    t[k + 1, j] = right;
+                }
+                int tempAns = 1 + left + right;
+                ans = Math.Min(ans, tempAns);
+            }
+            return ans;
+        }
+
+        public static int MinCoin(int[] coins, int a, int n)
+        {
+            // base condition
+            if (n == 0)
+            {
+                return 0;
+            }
+            if (a == 0)
+            {
+                return 1;
+            }
+            // Code
+            if (a >= coins[n - 1])
+            {
+                return Math.Min(1 + MinCoin(coins, a - coins[n - 1], n),
+                               MinCoin(coins, a, n - 1));
+            }
+            else
+            {
+                return MinCoin(coins, a, n - 1);
+            }
+        }
+
+        public static int TopDownMinCoin(int[] coins, int a, int n)
+        {
+            int[,] t = new int[n + 1, a + 1];
+            for (int i = 0; i < n + 1; i++)
+            {
+                for (int j = 0; j < a + 1; j++)
+                {
+                    if (j == 0)
+                    {
+                        t[i, j] = 0;
+                    }
+                    if (i == 0)
+                    {
+                        t[i, j] = int.MaxValue - 1;
+                    }
+                }
+            }
+            for (int i = 1, j = 1; j < a + 1; j++)
+            {
+                if (j % coins[0] == 0)
+                {
+                    t[i, j] = j / coins[0];
+                }
+                else
+                {
+                    t[i, j] = int.MaxValue - 1;
+                }
+            }
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 1; j < a + 1; j++)
+                {
+                    if (j >= coins[i - 1])
+                    {
+                        t[i, j] = Math.Min(t[i, j - coins[i - 1]] + 1, t[i - 1, j]);
+                    }
+                    else
+                    {
+                        t[i, j] = t[i - 1, j];
+                    }
+                }
+            }
+            return t[n, a];
+        }
+
+        public static int LRCS(string x, string y, int n, int m)
+        {
+            // base  condition
+            if (n == 0 || m == 0)
+            {
+                return 0;
+            }
+            // main code
+            //if (n - 1 != m - 1)
+            //{
+            if (x[n - 1] == y[m - 1] && n - 1 != m - 1)
+            {
+                return 1 + LRCS(x, y, n - 1, m - 1);
+            }
+            else
+            {
+                return Math.Max(LRCS(x, y, n - 1, m), LRCS(x, y, n, m - 1));
+            }
+            //}
+            //else
+            //{
+            //    return LRCS(x,y,n-1,m-1);
+            //}
+        }
+    }
+}
